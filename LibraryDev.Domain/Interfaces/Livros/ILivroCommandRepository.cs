@@ -4,5 +4,7 @@ namespace LibraryDev.Domain.Interfaces.Livros;
 
 public interface ILivroCommandRepository
 {
-    public Task<int> CriarLivroAsync(Livro livro);
+    Task<int> CriarLivroAsync(Livro livro);
+    Task<bool> AtualizarLivroAsync(Livro livro);
+    Task<bool> DeletarLivroAsync(int id);
 }
