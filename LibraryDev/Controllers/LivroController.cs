@@ -49,7 +49,7 @@ namespace LibraryDev.API.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeletarLivro(int id)
         {
             var result = await _livroService.DeletarLivroAsync(id);
