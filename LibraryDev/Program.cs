@@ -1,8 +1,10 @@
 using LibraryDev.Application.Interfaces;
 using LibraryDev.Application.Interfaces.Livros;
 using LibraryDev.Application.Services;
+using LibraryDev.Domain.Interfaces.Avaliacoes;
 using LibraryDev.Domain.Interfaces.Livros;
 using LibraryDev.Domain.Interfaces.Usuarios;
+using LibraryDev.Infrastructure.Repositories.Avaliacoes;
 using LibraryDev.Infrastructure.Repositories.Livros;
 using LibraryDev.Infrastructure.Repositories.Usuarios;
 
@@ -23,6 +25,10 @@ builder.Services.AddScoped<ILivroQueryRepository, LivroQueryRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IUsuarioCommandRepository, UsuarioCommandRepository>();
 builder.Services.AddScoped<IUsuarioQueryRepository, UsuarioQueryRepository>();
+
+builder.Services.AddScoped<IAvaliacaoService, AvaliacaoService>();
+builder.Services.AddScoped<IAvaliacaoCommandRepository, AvaliacaoCommandRepository>();
+builder.Services.AddScoped<IAvaliacaoQueryRepository, AvaliacaoQueryRepository>();
 
 var app = builder.Build();
 
