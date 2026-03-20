@@ -1,74 +1,127 @@
 ﻿using LibraryDev.Application.Commands.Avaliacoes;
 using LibraryDev.Application.Interfaces;
 using LibraryDev.Application.Interfaces.Livros;
+using LibraryDev.Application.Mappings.Avaliacoes;
 using LibraryDev.Application.Queries.Avaliacoes;
+using LibraryDev.Application.Validators.Avaliacoes;
 using LibraryDev.Application.ViewModels.Avaliacoes;
 using LibraryDev.Domain.Interfaces.Avaliacoes;
+using LibraryDev.Domain.Interfaces.Livros;
 using LibraryDev.Domain.Interfaces.Usuarios;
 
 namespace LibraryDev.Application.Services;
 
 public class AvaliacaoService : IAvaliacaoService
 {
-    private readonly ILivroQueryRepository _livroQueryRepository;
-    private readonly IUsuarioQueryRepository _usuarioQueryRepository;
     private readonly IAvaliacaoCommandRepository _avaliacaoCommandRepository;
     private readonly IAvaliacaoQueryRepository _avaliacaoQueryRepository;
+    private readonly ILivroQueryRepository _livroQueryRepository;
+    private readonly ILivroCommandRepository _livroCommandRepository;
+    private readonly IUsuarioQueryRepository _usuarioQueryRepository;
 
-    public AvaliacaoService(ILivroQueryRepository livroQueryRepository, IUsuarioQueryRepository usuarioQueryRepository, IAvaliacaoCommandRepository avaliacaoCommandRepository, IAvaliacaoQueryRepository avaliacaoQueryRepository)
+    public AvaliacaoService(
+        IAvaliacaoCommandRepository commandRepo,
+        IAvaliacaoQueryRepository queryRepo,
+        ILivroQueryRepository livroQueryRepo,
+        ILivroCommandRepository livroCommandRepo,
+        IUsuarioQueryRepository usuarioQueryRepo)
     {
-        _livroQueryRepository = livroQueryRepository;
-        _usuarioQueryRepository = usuarioQueryRepository;
-        _avaliacaoCommandRepository = avaliacaoCommandRepository;
-        _avaliacaoQueryRepository = avaliacaoQueryRepository;
+        _avaliacaoCommandRepository = commandRepo;
+        _avaliacaoQueryRepository = queryRepo;
+        _livroQueryRepository = livroQueryRepo;
+        _livroCommandRepository = livroCommandRepo;
+        _usuarioQueryRepository = usuarioQueryRepo;
     }
 
-    public async Task<IEnumerable<ObterAvaliacoesViewModel>> ObterAvaliacoes()
+    public async Task<IEnumerable<ObterAvaliacoesViewModel>> ObterAvaliacoesAsync()
     {
         var avaliacoes = await _avaliacaoQueryRepository.ObterAvaliacoesAsync();
-        return avaliacoes.Select(a => new ObterAvaliacoesViewModel(a.Id, a.Nota, a.Descricao, a.IdUsuario, a.IdLivro, a.DataCriacao));
+        return avaliacoes.Select(avaliacao => AvaliacaoMapping.MapToViewModel(avaliacao));
     }
 
-    public async Task<ObterAvalicaoPorIdViewModel> ObterAvalicaoPorId(ObterAvaliacaoPorIdQuery query)
+    public async Task<IEnumerable<ObterAvaliacoesViewModel>> ObterAvaliacoesPorLivroAsync(ObterAvaliacoesPorLivroQuery query)
+    {
+        var avaliacoes = await _avaliacaoQueryRepository.ObterAvaliacoesPorLivroAsync(query.IdLivro);
+        return avaliacoes.Select(avaliacao => AvaliacaoMapping.MapToViewModel(avaliacao));
+    }
+
+    public async Task<ObterAvaliacaoPorIdViewModel?> ObterAvaliacaoPorIdAsync(ObterAvaliacaoPorIdQuery query)
     {
         var avaliacao = await _avaliacaoQueryRepository.ObterAvaliacaoPorIdAsync(query.Id);
-        if(avaliacao is null) return null;
-        return new ObterAvalicaoPorIdViewModel
+        if (avaliacao is null) return null;
+
+        return new ObterAvaliacaoPorIdViewModel
         (
             avaliacao.Id,
             avaliacao.Nota,
             avaliacao.Descricao,
             avaliacao.IdUsuario,
+            avaliacao.Usuario?.Nome ?? string.Empty,
             avaliacao.IdLivro,
+            avaliacao.Livro?.Titulo ?? string.Empty,
+            avaliacao.DataInicioLeitura,
+            avaliacao.DataFimLeitura,
             avaliacao.DataCriacao
         );
     }
 
-    public async Task<int> CriarAvaliacaoAsync(CriarAvaliacaoCommand command)
+    public async Task<(bool sucesso, string mensagem, int id)> CriarAvaliacaoAsync(CriarAvaliacaoCommand command)
     {
-        var validacao = await ValidarLivroUsuarioExistente(command.IdLivro, command.IdUsuario);
-        if(validacao == 1)
-        {
-            return await _avaliacaoCommandRepository.CriarAvaliacaoAsync(CriarAvaliacaoCommand.ToEntity(command));
-        }
-        return 0;
+        var (valido, mensagem) = AvaliacaoValidator.ValidarCriar(command);
+        if (!valido) return (false, mensagem, 0);
+
+        var livro = await _livroQueryRepository.ObterLivroPorIdAsync(command.IdLivro);
+        if (livro is null) return (false, "Livro não encontrado.", 0);
+
+        var usuario = await _usuarioQueryRepository.ObterUsuarioPorIdAsync(command.IdUsuario);
+        if (usuario is null) return (false, "Usuário não encontrado.", 0);
+
+        var id = await _avaliacaoCommandRepository.CriarAvaliacaoAsync(CriarAvaliacaoCommand.ToEntity(command));
+
+        // Recalcular e atualizar a nota média do livro
+        var novaMedia = await _avaliacaoQueryRepository.CalcularNotaMediaLivroAsync(command.IdLivro);
+        await _livroCommandRepository.AtualizarNotaMediaAsync(command.IdLivro, novaMedia);
+
+        return (true, "Avaliação criada com sucesso.", id);
     }
 
-    private async Task<int> ValidarLivroUsuarioExistente(int idLivro, int idUsuario)
+    public async Task<(bool sucesso, string mensagem)> AtualizarAvaliacaoAsync(AtualizarAvaliacaoCommand command)
     {
-        var livro = await _livroQueryRepository.ObterLivroPorIdAsync(idLivro);
-        var usuario = await _usuarioQueryRepository.ObterUsuarioPorIdAsync(idUsuario);
-        if (livro is null || usuario is null) return 0;
-        return 1;
+        var (valido, mensagem) = AvaliacaoValidator.ValidarAtualizar(command);
+        if (!valido) return (false, mensagem);
+
+        var avaliacao = await _avaliacaoQueryRepository.ObterAvaliacaoPorIdAsync(command.Id);
+        if (avaliacao is null) return (false, "Avaliação não encontrada.");
+
+        var livro = await _livroQueryRepository.ObterLivroPorIdAsync(command.IdLivro);
+        if (livro is null) return (false, "Livro não encontrado.");
+
+        var usuario = await _usuarioQueryRepository.ObterUsuarioPorIdAsync(command.IdUsuario);
+        if (usuario is null) return (false, "Usuário não encontrado.");
+
+        var resultado = await _avaliacaoCommandRepository.AtualizarAvaliacaoAsync(AvaliacaoMapping.ToEntity(command));
+        if (!resultado) return (false, "Não foi possível atualizar a avaliação.");
+
+        // Recalcular nota média após atualização
+        var novaMedia = await _avaliacaoQueryRepository.CalcularNotaMediaLivroAsync(command.IdLivro);
+        await _livroCommandRepository.AtualizarNotaMediaAsync(command.IdLivro, novaMedia);
+
+        return (true, "Avaliação atualizada com sucesso.");
     }
 
-    public async Task<bool> AtualizarAvaliacaoAsync(AtualizarAvaliacaoCommand avaliacao)
+    public async Task<(bool sucesso, string mensagem)> DeletarAvaliacaoAsync(int id)
     {
-       return await _avaliacaoCommandRepository.AtualizarAvaliacaoAsync(AtualizarAvaliacaoCommand.ToEntity(avaliacao));
-    }
+        var avaliacao = await _avaliacaoQueryRepository.ObterAvaliacaoPorIdAsync(id);
+        if (avaliacao is null) return (false, "Avaliação não encontrada.");
 
-    public async Task<bool> DeletarAvaliacaoAsync(int id)
-    {
-        return await _avaliacaoCommandRepository.DeletarAvaliacaoAsync(id);
+        var idLivro = avaliacao.IdLivro;
+        var resultado = await _avaliacaoCommandRepository.DeletarAvaliacaoAsync(id);
+        if (!resultado) return (false, "Não foi possível remover a avaliação.");
+
+        // Recalcular nota média após remoção
+        var novaMedia = await _avaliacaoQueryRepository.CalcularNotaMediaLivroAsync(idLivro);
+        await _livroCommandRepository.AtualizarNotaMediaAsync(idLivro, novaMedia);
+
+        return (true, "Avaliação removida com sucesso.");
     }
 }

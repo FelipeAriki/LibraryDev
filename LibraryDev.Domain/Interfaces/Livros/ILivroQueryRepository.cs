@@ -6,4 +6,5 @@ public interface ILivroQueryRepository
 {
     Task<IEnumerable<Livro>> ObterLivrosAsync();
     Task<Livro?> ObterLivroPorIdAsync(int id);
+    Task<Livro?> ObterLivroPorISBNAsync(string isbn);
 }

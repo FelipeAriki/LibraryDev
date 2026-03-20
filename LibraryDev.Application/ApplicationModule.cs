@@ -21,7 +21,7 @@ public static class ApplicationModule
             services.AddScoped<ILivroService, LivroService>();
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<IAvaliacaoService, AvaliacaoService>();
-            //services.AddScoped<IRelatorioService, RelatorioService>();
+            services.AddScoped<IRelatorioService, RelatorioService>();
             return services;
         }
     }

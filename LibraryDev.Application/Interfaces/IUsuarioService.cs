@@ -7,8 +7,8 @@ namespace LibraryDev.Application.Interfaces;
 public interface IUsuarioService
 {
     Task<IEnumerable<ObterUsuariosViewModel>> ObterUsuariosAsync();
-    Task<ObterUsuarioPorIdViewModel> ObterUsuarioPorIdAsync(ObterUsuarioPorIdQuery query);
-    Task<int> CriarUsuarioAsync(CriarUsuarioCommand command);
-    Task<bool> AtualizarUsuarioAsync(AtualizarUsuarioCommand command);
-    Task<bool> DeletarUsuarioAsync(int id);
+    Task<ObterUsuarioPorIdViewModel?> ObterUsuarioPorIdAsync(ObterUsuarioPorIdQuery query);
+    Task<(bool sucesso, string mensagem, int id)> CriarUsuarioAsync(CriarUsuarioCommand command);
+    Task<(bool sucesso, string mensagem)> AtualizarUsuarioAsync(AtualizarUsuarioCommand command);
+    Task<(bool sucesso, string mensagem)> DeletarUsuarioAsync(int id);
 }

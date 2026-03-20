@@ -16,44 +16,72 @@ namespace LibraryDev.API.Controllers
             _avaliacaoService = avaliacaoService;
         }
 
+        /// <summary>Lista todas as avaliações.</summary>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ObterAvaliacoes()
         {
-            var resultado = await _avaliacaoService.ObterAvaliacoes();
-            if (!resultado.Any()) return BadRequest("Nenhuma avaliação encontrada");
-            return Ok(resultado);
+            var avaliacoes = await _avaliacaoService.ObterAvaliacoesAsync();
+            return Ok(avaliacoes);
         }
 
+        /// <summary>Lista as avaliações de um livro específico.</summary>
+        [HttpGet("livro/{idLivro:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ObterAvaliacoesPorLivro(int idLivro)
+        {
+            var avaliacoes = await _avaliacaoService.ObterAvaliacoesPorLivroAsync(new ObterAvaliacoesPorLivroQuery(idLivro));
+            return Ok(avaliacoes);
+        }
+
+        /// <summary>Retorna os detalhes de uma avaliação pelo Id.</summary>
         [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterAvaliacaoPorId(int id)
         {
-            var resultado = await _avaliacaoService.ObterAvalicaoPorId(new ObterAvaliacaoPorIdQuery(id));
-            if (resultado is null) return BadRequest("Nenhuma avaliação encontrada");
-            return Ok(resultado);
+            var avaliacao = await _avaliacaoService.ObterAvaliacaoPorIdAsync(new ObterAvaliacaoPorIdQuery(id));
+            if (avaliacao is null) return NotFound(new { mensagem = "Avaliação não encontrada." });
+            return Ok(avaliacao);
         }
 
+        /// <summary>Cadastra uma nova avaliação para um livro.</summary>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarAvaliacao([FromBody] CriarAvaliacaoCommand command)
         {
-            var resultado = await _avaliacaoService.CriarAvaliacaoAsync(command);
-            if (resultado == 0) return BadRequest("Não foi possível criar a avaliação.");
-            return Ok("Avaliação criada com sucesso: " + resultado);
+            var (sucesso, mensagem, id) = await _avaliacaoService.CriarAvaliacaoAsync(command);
+            if (!sucesso) return BadRequest(new { mensagem });
+            return CreatedAtAction(nameof(ObterAvaliacaoPorId), new { id }, new { id, mensagem });
         }
 
-        [HttpPut]
-        public async Task<IActionResult> AtualizarAvaliacao([FromBody] AtualizarAvaliacaoCommand command)
+        /// <summary>Atualiza uma avaliação existente.</summary>
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AtualizarAvaliacao(int id, [FromBody] AtualizarAvaliacaoCommand command)
         {
-            var resultado = await _avaliacaoService.AtualizarAvaliacaoAsync(command);
-            if (!resultado) return BadRequest("Não foi possível atualizar a avaliação.");
-            return Ok("Avaliação atualizada com sucesso.");
+            command.Id = id;
+            var (sucesso, mensagem) = await _avaliacaoService.AtualizarAvaliacaoAsync(command);
+            if (!sucesso)
+            {
+                if (mensagem.Contains("não encontrada")) return NotFound(new { mensagem });
+                return BadRequest(new { mensagem });
+            }
+            return NoContent();
         }
 
+        /// <summary>Remove uma avaliação pelo Id.</summary>
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletarAvaliacao(int id)
         {
-            var resultado = await _avaliacaoService.DeletarAvaliacaoAsync(id);
-            if (!resultado) return BadRequest("Não foi possível deletar a avaliação.");
-            return Ok("Avaliação deletada com sucesso.");
+            var (sucesso, mensagem) = await _avaliacaoService.DeletarAvaliacaoAsync(id);
+            if (!sucesso) return NotFound(new { mensagem });
+            return NoContent();
         }
     }
 }

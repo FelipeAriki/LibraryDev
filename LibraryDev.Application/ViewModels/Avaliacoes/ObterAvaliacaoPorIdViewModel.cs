@@ -1,6 +1,6 @@
 ﻿namespace LibraryDev.Application.ViewModels.Avaliacoes;
 
-public class ObterAvaliacoesViewModel
+public class ObterAvaliacaoPorIdViewModel
 {
     public int Id { get; set; }
     public int Nota { get; set; }
@@ -13,7 +13,7 @@ public class ObterAvaliacoesViewModel
     public DateTime DataFimLeitura { get; set; }
     public DateTime DataCriacao { get; set; }
 
-    public ObterAvaliacoesViewModel(int id, int nota, string? descricao, int idUsuario, string nomeUsuario, int idLivro, string tituloLivro, DateTime dataInicioLeitura, DateTime dataFimLeitura, DateTime dataCriacao)
+    public ObterAvaliacaoPorIdViewModel(int id, int nota, string? descricao, int idUsuario, string nomeUsuario, int idLivro, string tituloLivro, DateTime dataInicioLeitura, DateTime dataFimLeitura, DateTime dataCriacao)
     {
         Id = id;
         Nota = nota;

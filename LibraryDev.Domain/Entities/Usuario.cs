@@ -7,6 +7,6 @@ namespace LibraryDev.Domain.Entities
         public int Id { get; set; }
         public string Email { get; set; } = string.Empty;
         public string Nome { get; set; } = string.Empty;
-        public List<Avaliacao> Avaliacoes { get; set; } = new();
+        public List<Avaliacao> Avaliacoes { get; set; } = [];
     }
 }

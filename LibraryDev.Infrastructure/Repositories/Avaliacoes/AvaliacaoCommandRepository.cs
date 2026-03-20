@@ -19,54 +19,52 @@ public class AvaliacaoCommandRepository : IAvaliacaoCommandRepository
     public async Task<int> CriarAvaliacaoAsync(Avaliacao avaliacao)
     {
         using var conn = CreateConnection();
-        var sql = @"
-                    INSERT INTO Avaliacao
-                    (
-                        Nota,
-                        Descricao,
-                        IdUsuario,
-                        IdLivro,
-                        DataCriacao
-                    )
-                    OUTPUT INSERTED.Id
-                    VALUES
-                    (
-                        @Nota,
-                        @Descricao,
-                        @IdUsuario,
-                        @IdLivro,
-                        @DataCriacao
-                    )";
+        const string sql = @"
+                                DECLARE @IdGerado TABLE (Id INT);
 
-        return await conn.QueryFirstOrDefaultAsync<int>(sql, new
+                                INSERT INTO Avaliacao (Nota, Descricao, IdUsuario, IdLivro,
+                                                       DataInicioLeitura, DataFimLeitura)
+                                OUTPUT INSERTED.Id INTO @IdGerado
+                                VALUES (@Nota, @Descricao, @IdUsuario, @IdLivro,
+                                        @DataInicioLeitura, @DataFimLeitura);
+
+                                SELECT Id FROM @IdGerado;";
+
+        return await conn.ExecuteScalarAsync<int>(sql, new
         {
             avaliacao.Nota,
             avaliacao.Descricao,
             avaliacao.IdUsuario,
             avaliacao.IdLivro,
-            DataCriacao = DateTime.UtcNow
+            avaliacao.DataInicioLeitura,
+            avaliacao.DataFimLeitura
         });
     }
 
     public async Task<bool> AtualizarAvaliacaoAsync(Avaliacao avaliacao)
     {
         using var conn = CreateConnection();
-        var sql = @"
-                    UPDATE Avaliacao
-                    SET
-                        Nota = @Nota,
-                        Descricao = @Descricao,
-                        IdUsuario = @IdUsuario,
-                        IdLivro = @IdLivro
-                    WHERE Id = @Id";
-        return await conn.ExecuteAsync(sql, new
+        const string sql = @"
+            UPDATE Avaliacao SET
+                Nota              = @Nota,
+                Descricao         = @Descricao,
+                IdUsuario         = @IdUsuario,
+                IdLivro           = @IdLivro,
+                DataInicioLeitura = @DataInicioLeitura,
+                DataFimLeitura    = @DataFimLeitura
+            WHERE Id = @Id";
+
+        var rows = await conn.ExecuteAsync(sql, new
         {
             avaliacao.Nota,
             avaliacao.Descricao,
             avaliacao.IdUsuario,
             avaliacao.IdLivro,
+            avaliacao.DataInicioLeitura,
+            avaliacao.DataFimLeitura,
             avaliacao.Id
-        }) > 0;
+        });
+        return rows > 0;
     }
 
     public async Task<bool> DeletarAvaliacaoAsync(int id)

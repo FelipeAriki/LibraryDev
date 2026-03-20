@@ -6,9 +6,10 @@ namespace LibraryDev.Application.Interfaces;
 
 public interface IAvaliacaoService
 {
-    Task<IEnumerable<ObterAvaliacoesViewModel>> ObterAvaliacoes();
-    Task<ObterAvalicaoPorIdViewModel> ObterAvalicaoPorId(ObterAvaliacaoPorIdQuery query);
-    Task<int> CriarAvaliacaoAsync(CriarAvaliacaoCommand command);
-    Task<bool> AtualizarAvaliacaoAsync(AtualizarAvaliacaoCommand avaliacao);
-    Task<bool> DeletarAvaliacaoAsync(int id);
+    Task<IEnumerable<ObterAvaliacoesViewModel>> ObterAvaliacoesAsync();
+    Task<IEnumerable<ObterAvaliacoesViewModel>> ObterAvaliacoesPorLivroAsync(ObterAvaliacoesPorLivroQuery query);
+    Task<ObterAvaliacaoPorIdViewModel?> ObterAvaliacaoPorIdAsync(ObterAvaliacaoPorIdQuery query);
+    Task<(bool sucesso, string mensagem, int id)> CriarAvaliacaoAsync(CriarAvaliacaoCommand command);
+    Task<(bool sucesso, string mensagem)> AtualizarAvaliacaoAsync(AtualizarAvaliacaoCommand command);
+    Task<(bool sucesso, string mensagem)> DeletarAvaliacaoAsync(int id);
 }
