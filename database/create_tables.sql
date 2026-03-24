@@ -13,7 +13,12 @@ CREATE TABLE dbo.Usuario
 (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Email NVARCHAR(320) NOT NULL,
-    Nome NVARCHAR(200) NOT NULL
+    Nome NVARCHAR(200) NOT NULL,
+    Senha NVARCHAR(255) NOT NULL,
+    RefreshToken NVARCHAR(500) NULL,
+    RefreshTokenExpiracao DATETIME2 NULL,
+    TokenRecuperacaoSenha NVARCHAR(500) NULL,
+    TokenRecuperacaoExpiracao DATETIME2 NULL
 );
 GO
 

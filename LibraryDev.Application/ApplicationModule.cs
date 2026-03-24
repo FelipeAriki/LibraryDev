@@ -22,6 +22,7 @@ public static class ApplicationModule
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<IAvaliacaoService, AvaliacaoService>();
             services.AddScoped<IRelatorioService, RelatorioService>();
+            services.AddScoped<IAuthService, AuthService>();
             return services;
         }
     }

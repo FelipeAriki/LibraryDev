@@ -63,7 +63,10 @@ public class UsuarioService : IUsuarioService
         if (emailExistente)
             return (false, "Já existe um usuário cadastrado com este e-mail.", 0);
 
-        var id = await _usuarioCommandRepository.CriarUsuarioAsync(CriarUsuarioCommand.ToEntity(command));
+        var entity = CriarUsuarioCommand.ToEntity(command);
+        entity.Senha = BCrypt.Net.BCrypt.HashPassword(command.Senha);
+
+        var id = await _usuarioCommandRepository.CriarUsuarioAsync(entity);
         return (true, "Usuário criado com sucesso.", id);
     }
 

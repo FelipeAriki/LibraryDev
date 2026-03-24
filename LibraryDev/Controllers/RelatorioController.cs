@@ -1,11 +1,13 @@
 ﻿using LibraryDev.Application.Interfaces;
 using LibraryDev.Application.Queries.Relatorios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryDev.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RelatorioController : ControllerBase
     {
         private readonly IRelatorioService _relatorioService;
