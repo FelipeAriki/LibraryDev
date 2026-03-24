@@ -1,4 +1,5 @@
 using LibraryDev.Application.Commands.Usuarios;
+using LibraryDev.Application.Validators.Auth;
 using System.Text.RegularExpressions;
 
 namespace LibraryDev.Application.Validators.Usuarios;
@@ -25,6 +26,10 @@ public static class UsuarioValidator
         if (command.Email.Length > 320)
             return (false, "E-mail não pode ultrapassar 320 caracteres.");
 
+        var (senhaValida, mensagemSenha) = AuthValidator.ValidarSenha(command.Senha);
+        if (!senhaValida)
+            return (false, mensagemSenha);
+
         return (true, string.Empty);
     }
 
@@ -36,7 +41,8 @@ public static class UsuarioValidator
         return ValidarCriar(new CriarUsuarioCommand
         (
             command.Nome,
-            command.Email
+            command.Email,
+            "Aa1!fake0" // senha não é atualizada neste fluxo
         ));
     }
 }

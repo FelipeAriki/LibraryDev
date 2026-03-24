@@ -1,6 +1,7 @@
 ﻿using LibraryDev.Application.Commands.Avaliacoes;
 using LibraryDev.Application.Interfaces;
 using LibraryDev.Application.Queries.Avaliacoes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace LibraryDev.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AvaliacaoController : ControllerBase
     {
         private readonly IAvaliacaoService _avaliacaoService;

@@ -6,11 +6,13 @@ public class CriarUsuarioCommand
 {
     public string Nome { get; set; }
     public string Email { get; set; }
+    public string Senha { get; set; }
 
-    public CriarUsuarioCommand(string nome, string email)
+    public CriarUsuarioCommand(string nome, string email, string senha)
     {
         Nome = nome;
         Email = email;
+        Senha = senha;
     }
 
     public static Usuario ToEntity(CriarUsuarioCommand command)
@@ -18,7 +20,8 @@ public class CriarUsuarioCommand
         return new Usuario
         {
             Nome = command.Nome,
-            Email = command.Email
+            Email = command.Email,
+            Senha = command.Senha
         };
     }
 }

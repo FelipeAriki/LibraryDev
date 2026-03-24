@@ -1,12 +1,14 @@
 ﻿using LibraryDev.Application.Commands.Livros;
 using LibraryDev.Application.Interfaces;
 using LibraryDev.Application.Queries.Livros;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryDev.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LivroController : ControllerBase
     {
         private readonly ILivroService _livroService;

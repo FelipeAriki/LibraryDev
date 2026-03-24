@@ -1,6 +1,7 @@
 ﻿using LibraryDev.Application.Commands.Usuarios;
 using LibraryDev.Application.Interfaces;
 using LibraryDev.Application.Queries.Usuarios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace LibraryDev.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
@@ -39,6 +41,7 @@ namespace LibraryDev.API.Controllers
 
         /// <summary>Cadastra um novo usuário.</summary>
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioCommand command)

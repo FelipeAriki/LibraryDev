@@ -88,4 +88,37 @@ public class UsuarioQueryRepository : IUsuarioQueryRepository
             WHERE Email = @Email AND (@IgnorarId IS NULL OR Id <> @IgnorarId)";
         return await conn.ExecuteScalarAsync<int>(sql, new { Email = email, IgnorarId = ignorarId }) > 0;
     }
+
+    public async Task<Usuario?> ObterUsuarioPorEmailAsync(string email)
+    {
+        using var conn = CreateConnection();
+        const string sql = @"
+            SELECT Id, Nome, Email, Senha, RefreshToken, RefreshTokenExpiracao,
+                   TokenRecuperacaoSenha, TokenRecuperacaoExpiracao
+            FROM Usuario
+            WHERE Email = @Email";
+        return await conn.QueryFirstOrDefaultAsync<Usuario>(sql, new { Email = email });
+    }
+
+    public async Task<Usuario?> ObterUsuarioPorRefreshTokenAsync(string refreshToken)
+    {
+        using var conn = CreateConnection();
+        const string sql = @"
+            SELECT Id, Nome, Email, Senha, RefreshToken, RefreshTokenExpiracao,
+                   TokenRecuperacaoSenha, TokenRecuperacaoExpiracao
+            FROM Usuario
+            WHERE RefreshToken = @RefreshToken";
+        return await conn.QueryFirstOrDefaultAsync<Usuario>(sql, new { RefreshToken = refreshToken });
+    }
+
+    public async Task<Usuario?> ObterUsuarioPorTokenRecuperacaoAsync(string token)
+    {
+        using var conn = CreateConnection();
+        const string sql = @"
+            SELECT Id, Nome, Email, Senha, RefreshToken, RefreshTokenExpiracao,
+                   TokenRecuperacaoSenha, TokenRecuperacaoExpiracao
+            FROM Usuario
+            WHERE TokenRecuperacaoSenha = @Token";
+        return await conn.QueryFirstOrDefaultAsync<Usuario>(sql, new { Token = token });
+    }
 }

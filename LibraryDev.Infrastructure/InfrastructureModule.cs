@@ -1,5 +1,4 @@
-﻿using LibraryDev.Application.Interfaces.Livros;
-using LibraryDev.Domain.Interfaces.Avaliacoes;
+﻿using LibraryDev.Domain.Interfaces.Avaliacoes;
 using LibraryDev.Domain.Interfaces.Livros;
 using LibraryDev.Domain.Interfaces.Relatorios;
 using LibraryDev.Domain.Interfaces.Usuarios;
@@ -8,6 +7,7 @@ using LibraryDev.Infrastructure.Repositories.Avaliacoes;
 using LibraryDev.Infrastructure.Repositories.Livros;
 using LibraryDev.Infrastructure.Repositories.Relatorios;
 using LibraryDev.Infrastructure.Repositories.Usuarios;
+using LibraryDev.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -47,6 +47,9 @@ public static class InfrastructureModule
                 client.DefaultRequestHeaders.Add("User-Agent", "LibraryDev/1.0");
                 client.Timeout = TimeSpan.FromSeconds(10);
             });
+
+            // Email
+            services.AddScoped<IEmailService, EmailService>();
 
             return services;
         }
