@@ -1,6 +1,5 @@
 ﻿using LibraryDev.Application.Commands.Avaliacoes;
 using LibraryDev.Application.Interfaces;
-using LibraryDev.Application.Interfaces.Livros;
 using LibraryDev.Application.Mappings.Avaliacoes;
 using LibraryDev.Application.Queries.Avaliacoes;
 using LibraryDev.Application.Validators.Avaliacoes;

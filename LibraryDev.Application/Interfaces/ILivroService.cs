@@ -14,5 +14,5 @@ public interface ILivroService
     Task<(bool sucesso, string mensagem)> DeletarLivroAsync(int id);
     Task<(bool sucesso, string mensagem)> UploadCapaAsync(int id, byte[] capa);
     Task<byte[]?> ObterCapaAsync(int id);
-    Task<LivroExternoViewModel?> ConsultarLivroExternoAsync(string isbn);
+    Task<LivroExternoDto?> ConsultarLivroExternoAsync(string isbn);
 }

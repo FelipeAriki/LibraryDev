@@ -19,7 +19,7 @@ public class UsuarioQueryRepository : IUsuarioQueryRepository
 
     private IDbConnection CreateConnection() => new SqlConnection(_connectionString);
 
-    public async Task<IEnumerable<Usuario>> ObterUsuariosAsync()
+    public async Task<IEnumerable<UsuarioResumo>> ObterUsuariosAsync()
     {
         using var conn = CreateConnection();
         const string sql = @"
@@ -30,7 +30,7 @@ public class UsuarioQueryRepository : IUsuarioQueryRepository
             GROUP BY u.Id, u.Nome, u.Email
             ORDER BY u.Nome";
 
-        return await conn.QueryAsync<Usuario>(sql);
+        return await conn.QueryAsync<UsuarioResumo>(sql);
     }
 
     public async Task<Usuario?> ObterUsuarioPorIdAsync(int id)

@@ -85,6 +85,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler(appBuilder =>
+    {
+        appBuilder.Run(async context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { mensagem = "Ocorreu um erro interno. Tente novamente mais tarde." });
+        });
+    });
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 

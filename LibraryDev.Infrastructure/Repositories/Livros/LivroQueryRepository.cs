@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using LibraryDev.Application.Interfaces.Livros;
+using LibraryDev.Domain.Interfaces.Livros;
 using LibraryDev.Domain.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -23,7 +23,7 @@ public class LivroQueryRepository : ILivroQueryRepository
         using var conn = CreateConnection();
         const string sql = @"
             SELECT Id, Titulo, Descricao, ISBN, Autor, Editora, Genero,
-                   AnoDePublicacao, QuantidadePaginas, DataCriacao, NotaMedia, CapaLivro
+                   AnoDePublicacao, QuantidadePaginas, DataCriacao, NotaMedia
             FROM Livro
             ORDER BY Titulo";
         return await conn.QueryAsync<Livro>(sql);
@@ -74,5 +74,12 @@ public class LivroQueryRepository : ILivroQueryRepository
         using var conn = CreateConnection();
         const string sql = "SELECT Id, Titulo, ISBN FROM Livro WHERE ISBN = @ISBN";
         return await conn.QueryFirstOrDefaultAsync<Livro>(sql, new { ISBN = isbn });
+    }
+
+    public async Task<byte[]?> ObterCapaAsync(int id)
+    {
+        using var conn = CreateConnection();
+        const string sql = "SELECT CapaLivro FROM Livro WHERE Id = @Id";
+        return await conn.ExecuteScalarAsync<byte[]?>(sql, new { Id = id });
     }
 }

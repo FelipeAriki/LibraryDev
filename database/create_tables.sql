@@ -60,60 +60,12 @@ CREATE TABLE dbo.Avaliacao
     IdUsuario INT NOT NULL,
     IdLivro INT NOT NULL,
     DataCriacao DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    DataInicioLeitura DATETIME2 NULL,
+    DataFimLeitura DATETIME2 NULL,
     CONSTRAINT FK_Avaliacao_Usuario FOREIGN KEY (IdUsuario) REFERENCES dbo.Usuario(Id) ON DELETE CASCADE,
     CONSTRAINT FK_Avaliacao_Livro FOREIGN KEY (IdLivro) REFERENCES dbo.Livro(Id) ON DELETE CASCADE
 );
 GO
 
--- Trigger to update Livro.NotaMedia automatically when Avaliacao is inserted/updated/deleted
-IF OBJECT_ID('dbo.TR_Avaliacao_NotaMedia_Update', 'TR') IS NOT NULL
-    DROP TRIGGER dbo.TR_Avaliacao_NotaMedia_Update;
-GO
-
-CREATE TRIGGER dbo.TR_Avaliacao_NotaMedia_Update
-ON dbo.Avaliacao
-AFTER INSERT, UPDATE, DELETE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    ;WITH AffectedBooks AS
-    (
-        SELECT IdLivro FROM inserted
-        UNION
-        SELECT IdLivro FROM deleted
-    )
-    UPDATE L
-    SET NotaMedia = ISNULL(S.AvgNota, 0)
-    FROM dbo.Livro L
-    INNER JOIN AffectedBooks AB ON L.Id = AB.IdLivro
-    LEFT JOIN
-    (
-        SELECT IdLivro, CAST(AVG(CAST(Nota AS DECIMAL(5,2))) AS DECIMAL(5,2)) AS AvgNota
-        FROM dbo.Avaliacao
-        WHERE IdLivro IN (SELECT IdLivro FROM AffectedBooks)
-        GROUP BY IdLivro
-    ) S ON S.IdLivro = L.Id;
-END;
-GO
-
--- Optional: stored procedure to recalculate all averages (useful for maintenance)
-IF OBJECT_ID('dbo.sp_RecalculaNotas', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_RecalculaNotas;
-GO
-
-CREATE PROCEDURE dbo.sp_RecalculaNotas
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    UPDATE L
-    SET NotaMedia = ISNULL(S.AvgNota, 0)
-    FROM dbo.Livro L
-    LEFT JOIN (
-        SELECT IdLivro, CAST(AVG(CAST(Nota AS DECIMAL(5,2))) AS DECIMAL(5,2)) AS AvgNota
-        FROM dbo.Avaliacao
-        GROUP BY IdLivro
-    ) S ON S.IdLivro = L.Id;
-END;
-GO
+-- NotaMedia is calculated and updated by application code (AvaliacaoService)
+-- No trigger needed — keeps logic explicit and testable

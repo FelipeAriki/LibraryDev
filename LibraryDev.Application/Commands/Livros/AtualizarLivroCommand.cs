@@ -14,9 +14,6 @@ public class AtualizarLivroCommand
     public GeneroLivroEnum Genero { get; set; }
     public int AnoDePublicacao { get; set; }
     public int QuantidadePaginas { get; set; }
-    public DateTime DataCriacao { get; set; }
-    public decimal NotaMedia { get; set; }
-    public byte[] CapaLivro { get; set; } = [];
 
     public static Livro ToEntity(AtualizarLivroCommand command)
     {
@@ -30,10 +27,7 @@ public class AtualizarLivroCommand
             Editora = command.Editora,
             Genero = command.Genero,
             AnoDePublicacao = command.AnoDePublicacao,
-            QuantidadePaginas = command.QuantidadePaginas,
-            DataCriacao = command.DataCriacao,
-            NotaMedia = command.NotaMedia,
-            CapaLivro = command.CapaLivro
+            QuantidadePaginas = command.QuantidadePaginas
         };
     }
 }

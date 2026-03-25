@@ -30,10 +30,12 @@ public class EmailService : IEmailService
         message.To.Add(new MailboxAddress(nome, email));
         message.Subject = "Recuperação de Senha - LibraryDev";
 
+        var nomeSeguro = System.Net.WebUtility.HtmlEncode(nome);
+
         var bodyBuilder = new BodyBuilder
         {
             HtmlBody = $"""
-                <h2>Olá, {nome}!</h2>
+                <h2>Olá, {nomeSeguro}!</h2>
                 <p>Recebemos uma solicitação para redefinir sua senha.</p>
                 <p>Use o link abaixo para criar uma nova senha. Este link expira em 30 minutos.</p>
                 <p><a href="{linkRecuperacao}">Redefinir minha senha</a></p>

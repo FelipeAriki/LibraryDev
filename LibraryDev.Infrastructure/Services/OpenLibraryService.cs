@@ -1,7 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using LibraryDev.Domain.Services;
 
-namespace LibraryDev.Domain.Services;
+namespace LibraryDev.Infrastructure.Services;
 
 public class OpenLibraryService : IOpenLibraryService
 {
@@ -13,7 +14,7 @@ public class OpenLibraryService : IOpenLibraryService
         _httpClient = httpClient;
     }
 
-    public async Task<LivroExternoViewModel?> BuscarPorISBNAsync(string isbn)
+    public async Task<LivroExternoDto?> BuscarPorISBNAsync(string isbn)
     {
         try
         {
@@ -29,7 +30,7 @@ public class OpenLibraryService : IOpenLibraryService
             var key = $"ISBN:{isbnLimpo}";
             if (data == null || !data.TryGetValue(key, out var book)) return null;
 
-            return new LivroExternoViewModel
+            return new LivroExternoDto
             {
                 Titulo = book.Title ?? string.Empty,
                 Autor = book.Authors?.FirstOrDefault()?.Name ?? "Desconhecido",

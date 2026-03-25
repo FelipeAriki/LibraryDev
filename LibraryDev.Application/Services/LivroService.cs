@@ -1,6 +1,5 @@
 ﻿using LibraryDev.Application.Commands.Livros;
 using LibraryDev.Application.Interfaces;
-using LibraryDev.Application.Interfaces.Livros;
 using LibraryDev.Application.Queries.Livros;
 using LibraryDev.Application.Validators.Livros;
 using LibraryDev.Application.ViewModels.Livros;
@@ -133,11 +132,10 @@ public class LivroService : ILivroService
 
     public async Task<byte[]?> ObterCapaAsync(int id)
     {
-        var livro = await _livroQueryRepository.ObterLivroPorIdAsync(id);
-        return livro?.CapaLivro;
+        return await _livroQueryRepository.ObterCapaAsync(id);
     }
 
-    public async Task<LivroExternoViewModel?> ConsultarLivroExternoAsync(string isbn)
+    public async Task<LivroExternoDto?> ConsultarLivroExternoAsync(string isbn)
     {
         if (string.IsNullOrWhiteSpace(isbn)) return null;
         return await _openLibraryService.BuscarPorISBNAsync(isbn);

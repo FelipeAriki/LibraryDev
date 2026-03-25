@@ -3,4 +3,5 @@
   <Project Path="LibraryDev.Domain/LibraryDev.Domain.csproj" />
   <Project Path="LibraryDev.Infrastructure/LibraryDev.Infrastructure.csproj" />
   <Project Path="LibraryDev/LibraryDev.API.csproj" />
+  <Project Path="LibraryDev.Tests/LibraryDev.Tests.csproj" />
 </Solution>

@@ -27,7 +27,7 @@ public class UsuarioService : IUsuarioService
             u.Id,
             u.Nome,
             u.Email,
-            u.Avaliacoes.Count
+            u.TotalAvaliacoes
         ));
     }
 
